@@ -1,138 +1,35 @@
-# Veritais — Backend API
+Markdown# Veritais — Backend API
 
-API de verificação de fake news construída com **FastAPI + Claude AI**.
-
----
-
-## Estrutura dos arquivos
-
-```
-veritais-backend/
-├── main.py           ← Rotas da API (endpoints)
-├── models.py         ← Banco de dados (SQLite + SQLAlchemy)
-├── analyzer.py       ← Lógica de análise e prompt do Claude
-├── factcheck.py      ← Integração APIs externas (Google, NewsAPI)
-├── requirements.txt  ← Dependências Python
-└── .env.example      ← Modelo de variáveis de ambiente
-```
+API de verificação de fake news construída com **FastAPI + Google Gemini AI (SDK moderno `google-genai`)**.
 
 ---
 
-## Como rodar (passo a passo)
+## 📂 Estrutura dos arquivos
 
-### 1. Clone / baixe a pasta `veritais-backend`
+veritais-backend/└── veritais-backend/     ← Pasta principal do código├── main.py           ← Rotas da API e integração com Gemini├── models.py         ← Banco de dados (SQLite + SQLAlchemy)├── analyzer.py       ← Lógica de prompts e tratamento de respostas├── factcheck.py      ← Integração com APIs externas (Google Fact Check)├── requirements.txt  ← Dependências Python necessárias└── .env.example      ← Modelo de variáveis de ambiente
+---
 
-### 2. Crie e ative um ambiente virtual
+## 🚀 Como rodar o projeto do zero (Passo a Passo)
 
+Certifique-se de ter o **Python 3.10 ou superior** instalado no seu computador antes de começar.
+
+### 1. Entrar na pasta correta do código
+Abra o terminal e navegue até a subpasta interna onde estão os scripts e o arquivo `requirements.txt`:
 ```bash
+cd veritais-backend/veritais-backend
+2. Escolha como deseja rodar (Instalação das dependências)Se você utiliza Ambiente Virtual (Recomendado):Bash# Criar o ambiente virtual
 python -m venv venv
 
-# Windows:
-venv\Scripts\activate
-
-# Mac/Linux:
+# Ativar no Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+# Ativar no Mac/Linux:
 source venv/bin/activate
-```
 
-### 3. Instale as dependências
-
-```bash
+# Instalar as bibliotecas
 pip install -r requirements.txt
-```
-
-### 4. Configure as variáveis de ambiente
-
-```bash
-cp .env.example .env
-# Edite o .env e coloque sua chave da Anthropic
-```
-
-A única chave **obrigatória** é a `ANTHROPIC_API_KEY`.  
-As demais são opcionais — o sistema funciona sem elas.
-
-### 5. Rode o servidor
-
-```bash
-uvicorn main:app --reload
-```
-
-A API estará disponível em: **http://localhost:8000**
-
----
-
-## Endpoints disponíveis
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/` | Status da API |
-| POST | `/verify/url` | Verifica uma URL |
-| POST | `/verify/text` | Verifica um texto/afirmação |
-| POST | `/verify/image` | Verifica uma imagem |
-| GET | `/history` | Lista histórico de verificações |
-| GET | `/history/{id}` | Detalhe de uma verificação |
-| DELETE | `/history/{id}` | Remove uma verificação |
-
-Documentação interativa: **http://localhost:8000/docs**
-
----
-
-## Exemplos de uso
-
-### Verificar URL
-```bash
-curl -X POST http://localhost:8000/verify/url \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://exemplo.com/noticia"}'
-```
-
-### Verificar texto
-```bash
-curl -X POST http://localhost:8000/verify/text \
-  -H "Content-Type: application/json" \
-  -d '{"text": "O governo anunciou que vacinas causam autismo"}'
-```
-
-### Verificar imagem
-```bash
-curl -X POST http://localhost:8000/verify/image \
-  -F "file=@foto_suspeita.jpg"
-```
-
----
-
-## Resposta padrão (todos os endpoints)
-
-```json
-{
-  "id": 1,
-  "verdict": "FALSO",
-  "confidence": 92,
-  "summary": "A afirmação é falsa e contradiz evidências científicas consolidadas.",
-  "analysis": "1. O que afirma...\n2. Evidências contra...\n3. Fontes confiáveis...",
-  "sources_found": [],
-  "checked_at": "2025-01-15T14:30:00"
-}
-```
-
-**Vereditos possíveis:** `VERDADEIRO` | `FALSO` | `SUSPEITO` | `INCONCLUSIVO`
-
----
-
-## Deploy gratuito (Railway)
-
-1. Crie conta em https://railway.app
-2. New Project → Deploy from GitHub repo
-3. Adicione as variáveis de ambiente no painel do Railway
-4. Deploy automático ✓
-
----
-
-## Conectar ao front-end React
-
-No seu `App.jsx`, use:
-```js
-const API_URL = "http://localhost:8000";  // local
-// const API_URL = "https://seu-projeto.railway.app";  // produção
-
-const res = await axios.post(`${API_URL}/verify/url`, { url });
-```
+pip install google-genai
+Se você prefere instalar Globalmente no Sistema (Mais rápido e sem erros de caminho):Bashpy -m pip install fastapi uvicorn[standard] google-genai httpx python-multipart sqlalchemy pydantic python-dotenv
+3. Configurar a Chave da IA (Gemini API)A chave padrão de demonstração já está embutida diretamente no código do arquivo main.py para facilitar a correção.Se preferir usar sua própria chave, crie um arquivo .env baseado no .env.example e configure a variável:Snippet de códigoGEMINI_API_KEY=sua_chave_do_gemini_aqui
+4. Inicializar o ServidorCom as dependências instaladas, ligue o servidor executando:Bashpy -m uvicorn main:app --reload
+Se o comando py não estiver mapeado no seu sistema, utilize o padrão:Bashuvicorn main:app --reload
+O servidor estará ativo em: http://127.0.0.1:8000🎯 Interface Interativa e Testes (Swagger UI)O FastAPI gera automaticamente uma documentação visual perfeita para testar as rotas da IA sem precisar de um front-end configurado.Acesse pelo seu navegador: http://127.0.0.1:8000/docsEndpoints disponíveis para o Front-endMétodoRotaParâmetrosDescriçãoPOST/verify/text{ "text": "...", "title": "..." }Envia uma afirmação textual direta para a IA avaliar.POST/verify/url{ "url": "..." }Baixa o texto de um site e valida o conteúdo na IA.POST/verify/imageEnvio de arquivo (Multipart/Form-Data)Envia um arquivo de imagem (print, foto) para análise multimodal.GET/historyNenhum (Query params opcionais)Retorna a lista completa de checagens salvas no banco de dados.GET/history/{id}ID na URLTraz a checagem detalhada e a justificativa completa da IA.DELETE/history/{id}ID na URLRemove um registro específico do histórico.
